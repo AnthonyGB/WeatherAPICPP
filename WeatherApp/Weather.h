@@ -1,15 +1,9 @@
 #pragma once
-//I am using the open weather api
+//I am using the open weather map api
 #ifndef WEATHER
 #define WEATHER
 using namespace std;
 #include <string>
-
-struct WeatherData 
-{
-	double temperature, maxTemp, minTemp; 
-	string weatherConditions; //raining storming sunny etc
-};
 
 class Weather {
 public:
@@ -17,14 +11,18 @@ public:
 	Weather();
 	~Weather();
 
+	void makeApiCall();
+
+	//Accessors/modifiers
+	void setCityID(string cityId);
+	string getCityId();
+
 private:
-	//there's more secure ways to do this but since this is for school, I don't want to bother so iput the api key in here
-	string url = "api.openweathermap.org/data/2.5/weather?q=" + cityName + "," + countryCode + "&APPID=f2cc4ae311506f4fae2685b91b863ef6&units=imperial"; //for celsius units=metric
-	/* if we want to pass an id instead for better accuracy this will be the url...
-	"http://api.openweathermap.org/data/2.5/forecast?id={ city id}&APPID={APIKEY}"
-	*/
-	string cityName;
-	string countryCode;
+	//api.openweathermap.org/data/2.5/forecast?id=524901
+	string url = "api.openweathermap.org/data/2.5/forecast?id=" + cityId + "&APPID=f2cc4ae311506f4fae2685b91b863ef6&units=imperial"; //for celsius units=metric
+	string cityId;
+	double temperature, maxTemp, minTemp, windSpeed;
+	string dateTxt, weatherConditions; //date and conditions(raining storming sunny etc)
 };
 
 #endif 
