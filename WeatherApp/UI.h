@@ -13,10 +13,18 @@ void displayIntroduction()
 void displayMenu()
 {
 	//just place holders for now we'll decide what to do later
-	cout << "Select one of the following menu items to get a Current Weather Forecast of any of the following locations.\n" <<
+	cout << "Select one of the following menu items to get a 5-day Weather Forecast of any of the following locations or compare 2 different locations.\n" <<
 		"a: Orlando, FL.\n" <<
-		"b: Houston, TX.\n" <<
-		"c: Austin, TX.\n" <<
-		"d: New York City, NY.\n" <<
-		"e: London, UK.\n";
+		"s: Houston, TX.\n" <<
+		"d: Dallas, TX.\n" <<
+		"f: New York City, NY.\n" <<
+		"g: London, UK.\n" << 
+		"h: Mumbai, IN.\n" <<
+		"j: Atlanta, GA.\n" <<
+		"k: Milwaukee, WI.\n" <<
+		"l: Chicago, IL.\n" << 
+		"m: Toronto, CA.\n" << 
+		"c: Compare 2 cities.\n" << 
+		"b: Have cities battle for superiority.\n" <<
+		"1: Quit.\n";
 }

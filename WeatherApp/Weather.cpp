@@ -1,121 +1,105 @@
 #include "Weather.h";
 
-Weather::Weather() : current_size(0)
-{}
+Weather::Weather()
+{
+	five_day_forecast.assign(5, WeatherData());
+}
 
 Weather::~Weather() 
 {
 }
 
-//void Weather::setCityID(string cityId) 
-//{
-//	this->cityId = cityId;
-//}
-
-//string Weather::getCityId() 
-//{
-//	return cityId;
-//}
-
-void Weather::setUrl(string cityId)
+void Weather::setCityName(string cityName) 
 {
-	this->url = "api.openweathermap.org/data/2.5/forecast?id=" + cityId +"&APPID=f2cc4ae311506f4fae2685b91b863ef6&units=imperial";
+	this->cityName = cityName;
 }
 
-string Weather::getUrl() 
+string Weather::getCityName() 
 {
-	return url;
+	return cityName;
 }
 
-string Weather::makeApiCall(string url) 
+void Weather::GetWeatherData(string cityname) 
 {
-	string json;
+	this->setCityName(cityName);
+	string json, url, cityid;
+	for (int i = 0; i < 10; i++) 
+	{
+		if (cityname == cities[i].name) 
+		{
+			cityid = cities[i].id;
+		}
+	}
+	url = "api.openweathermap.org/data/2.5/forecast?id=" + cityid + "&APPID=f2cc4ae311506f4fae2685b91b863ef6&units=imperial";
 	auto request = cpr::Get(cpr::Url{url});
 	json = request.text; //JSON text string
-	return json;
+	Parse(json);
 }
 
-//pass pointer of empty array along with json, then parse json and fill the array
-void Weather::ParseAndFill(string json) 
+void Weather::Parse(string json) 
 {
 	rapidjson::Document doc;
 	doc.Parse(json.c_str());
-	if (doc.HasMember("list")) 
+	if (doc.HasMember("list"))
 	{
 		if (doc["list"].IsArray())
 		{
-			rapidjson::Value& list = doc["list"][0];
-			//int dayNumber = 1;
-			for (int i = 0, objIndex = 0; i < list.Size(); i = i + 7, objIndex++) {
-				for (auto& m : list[i].GetObject()) //for each member, do this 
+			rapidjson::Value& jsonElements = doc["list"];
+			list<WeatherData>::iterator it = five_day_forecast.begin();
+			for (int i = 0; i < jsonElements.Size(), it != five_day_forecast.end(); i = i + 7, it++) {
+				for (auto& m : jsonElements[i].GetObject()) //for each member, do this 
 				{
+					//switch statement here. Some objects are arrays, some are objects
 					string name = m.name.GetString();
-					if (name == "main") 
+					if (name == "main")
 					{
-						DataByDay[objIndex].temperature = m.value["temp"].GetDouble();
-						DataByDay[objIndex].maxTemp = m.value["temp_max"].GetDouble();
-						DataByDay[objIndex].minTemp = m.value["temp_min"].GetDouble();
+						it->temperature = m.value["temp"].GetDouble();
+						it->maxTemp = m.value["temp_max"].GetDouble();
+						it->minTemp = m.value["temp_min"].GetDouble();
 					}
-					else if (name == "weather") 
+					else if (name == "weather")
 					{
-						DataByDay[objIndex].weatherConditions = list[i]["weather"][0]["description"].GetString();
+						it->weatherConditions = jsonElements[i]["weather"][0]["description"].GetString();
 					}
 					else if (name == "wind")
 					{
-						DataByDay[objIndex].windSpeed = m.value["speed"].GetDouble();
+						it->windSpeed = m.value["speed"].GetDouble();
 					}
-					else if (name == "dt_txt") 
+					else if (name == "dt_txt")
 					{
-						DataByDay[objIndex].dateTxt = m.value.GetString();
+						it->dateTxt = m.value.GetString();
 					}
 				}
 			}
 		}
 	}
-}
 
-//add to end of list whenn used in for loop
-void Weather::addToList(WeatherData o, int index) 
-{
-	if (current_size == ARRAY_SIZE) 
-	{
-		cerr << "Cannot add another WeatherData element, teminating program...\n";
-		exit(1);
-	}
-	else if (index < 0) 
-	{
-		cerr << "Invalid position for adding a WeatherData element. Nothing was changed.\n";
-		return;
-	}
-	else 
-	{
-		DataByDay[index] = o;
-		current_size++;
-	}
-}
-
-void Weather::emptyList(int index) 
-{
-	if (current_size == 0)
-	{
-		cout << "No weatherdata is currently loaded\n";
-		return;
-	}
-	else current_size = 0;
 }
 
 void Weather::display() 
 {
-	for(int i = 0; i < current_size; i++)
+	for(list <WeatherData> ::iterator i = five_day_forecast.begin(); i != five_day_forecast.end(); i++)
 	{
-		cout << "Weather data for " << DataByDay[i].dateTxt.substr(0, 10)
-			<< ":\nTemperature: " << setw(25) << DataByDay[i].temperature << "\nMax: " << setw(25) << DataByDay[i].maxTemp << "\nMin: " << setw(25) << DataByDay[i].minTemp
-			<< "\nWind Speed: " << setw(25) << DataByDay[i].windSpeed
-			<< "\nWeather Description: " << setw(25) << DataByDay[i].weatherConditions << "\n";
+		
+		cout << "Weather data for " << i->dateTxt.substr(0, 10)
+			<< ":\nTemperature: " << setw(40) << left << i->temperature << "\nMax: " << setw(40) << left << i->maxTemp << "\nMin: " << setw(40) << left
+			<< i->minTemp << "\nWind Speed: " << setw(40) << left << i->windSpeed
+			<< "\nWeather Description: " << setw(40) << left << i->weatherConditions << "\n\n";
 	}
 }
 
-//bool Weather::isEmpty() 
+void Weather::compare(Weather& city) 
+{
+	cout << "City 1 Forecast:\n\n\n";
+	this->display();
+	cout << "City 2 Forecast:\n\n\n";
+	city.display();
+}
+
+//void Weather::battle(Weather& city) 
 //{
-//	return current_size == 0;
+//	if (city.getCityName == "Houston" || this->cityName == "Houston") 
+//	{
+//		cout << "Houston is amazing. We don't do battles against Houston.\n\n";
+//	}
 //}
